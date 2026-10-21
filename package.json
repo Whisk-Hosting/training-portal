@@ -1,0 +1,38 @@
+{
+  "name": "whisk-training",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "migrate": "node dist/migrate.js",
+    "migrate:dev": "tsx src/migrate.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "deploy:demo": "node demo/deploy.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@expo-google-fonts/figtree": "^0.4.1",
+    "@fontsource-variable/figtree": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@hono/node-server": "^2.1.1",
+    "@myriaddreamin/typst-ts-node-compiler": "^0.7.0",
+    "@sentry/node": "^10.73.0",
+    "hono": "^4.13.7",
+    "inngest": "^4.21.1",
+    "marked": "^16.4.0",
+    "pino": "^10.3.1",
+    "postgres": "^3.4.9"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  }
+}

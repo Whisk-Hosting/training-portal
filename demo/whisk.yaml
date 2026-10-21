@@ -1,0 +1,48 @@
+# The live demo's manifest. npm run deploy:demo puts it in place of whisk.yaml in a temporary
+# copy, so the app's own manifest never changes. It differs from whisk.yaml in three ways: every
+# route is public, every POST route needs a solved challenge, and DEMO=1 turns on src/demo.ts,
+# whose demo-reset function starts the demo fresh each night.
+whisk: 1
+name: training
+
+# Learners are the business's customers (their own sign-in pool); staff sign in as the team.
+customer_identity: app
+
+routes:
+  # Every page is open: the app shows anonymous visitors a Look around card, and the guest
+  # cookie lets them in as a trainer. The platform's own /.whisk paths stay as they are.
+  public: ["/", "/health", "/courses/**", "/verify/**", "/assets/**", "/api/**", "/learn/**", "/me", "/files/**", "/edit", "/edit/**", "/demo/**"]
+  # Every route the app takes a POST on, except /api/**: scripts can't solve a challenge, and
+  # the API still needs a key, which the guest can make in Settings.
+  challenge: ["/demo/start", "/learn/**", "/edit/**"]
+
+health:
+  path: /health
+  timeout: 90
+
+database: app
+migrate: "node dist/migrate.js"
+
+storage: true
+email: true
+
+functions:
+  - name: send-email
+    event: email.send
+    graph: workflows/send-email.graph.yaml
+  - name: deliver-webhook
+    event: webhook.deliver
+    graph: workflows/deliver-webhook.graph.yaml
+  - name: reminders
+    cron: "0 9 * * *"
+    tz: UTC
+    graph: workflows/reminders.graph.yaml
+  # Empties the app's tables and adds the sample data again, every night in New York.
+  - name: demo-reset
+    cron: "0 3 * * *"
+    tz: America/New_York
+    graph: demo/demo-reset.graph.yaml
+
+env:
+  DEMO: "1"
+  LOG_LEVEL: info

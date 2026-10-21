@@ -1,0 +1,40 @@
+whisk: 1
+name: training
+
+# Learners are the business's customers (their own sign-in pool); staff sign in as the team.
+customer_identity: app
+
+routes:
+  # The catalog, course outlines, certificate checks and static files are open to anyone.
+  # Lessons, progress and the editor need a signed-in person. The API checks its own keys.
+  public: ["/", "/health", "/courses/*", "/verify/**", "/assets/**", "/api/**"]
+
+health:
+  path: /health
+  timeout: 90
+
+database: app
+migrate: "node dist/migrate.js"
+
+# Lesson videos are uploaded straight to storage and played with the Whisk player.
+storage: true
+
+# Invites, reminders, certificates and marking news, from the business's own domain when it has
+# verified one in Whisk.
+email: true
+
+functions:
+  - name: send-email
+    event: email.send
+    graph: workflows/send-email.graph.yaml
+  - name: deliver-webhook
+    event: webhook.deliver
+    graph: workflows/deliver-webhook.graph.yaml
+  # Daily; each learner gets at most one reminder a week. Set tz to where your learners are.
+  - name: reminders
+    cron: "0 9 * * *"
+    tz: UTC
+    graph: workflows/reminders.graph.yaml
+
+env:
+  LOG_LEVEL: info
