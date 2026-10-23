@@ -55,8 +55,7 @@ export const appApi = (path: string) => env("WHISK_QUEUE_URL").replace(/\/events
 
 export type ApiError = { code: string; message: string; fix?: string };
 
-// whiskApi calls the Whisk API as this app. The service token rotates daily, so it is read
-// from the environment on every call.
+// whiskApi calls the Whisk API as this app, with the service token from the environment.
 export const whiskApi = async <T>(path: string, body?: unknown, method = body === undefined ? "GET" : "POST"): Promise<T> => {
   const refused = mode.refuse(method, path);
   if (refused) throw Object.assign(new Error(refused.message), { api: refused });
